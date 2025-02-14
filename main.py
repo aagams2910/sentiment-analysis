@@ -53,3 +53,8 @@ def analyze_emotion(text):
     """Extract emotions using NRCLex."""
     emotion = NRCLex(text)
     return emotion.top_emotions
+    
+def generate_wordcloud(text):
+    """Generate a word cloud image from text."""
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+    return wordcloud
