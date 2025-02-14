@@ -30,3 +30,14 @@ def preprocess_text(text, lang):
             return text
     else:
         return text
+
+def analyze_sentiment_basic(text):
+    """Analyze sentiment using TextBlob."""
+    blob = TextBlob(text)
+    sentiment = blob.sentiment
+    return sentiment.polarity, sentiment.subjectivity
+
+@st.cache_resource(show_spinner=False)
+def load_advanced_pipeline():
+    """Load the Hugging Face sentiment-analysis pipeline."""
+    return pipeline("sentiment-analysis")
