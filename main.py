@@ -10,3 +10,23 @@ from transformers import pipeline
 import librosa
 import librosa.display
 from nrclex import NRCLex
+
+st.title("Sentiment Analysis")
+st.markdown("Analyze sentiment of text, files, or audio")
+
+st.sidebar.header("Input Options")
+input_type = st.sidebar.radio("Select Input Type:", ("Text", "File Upload", "Audio Upload"))
+analysis_mode = st.sidebar.radio("Select Analysis Mode:", ("Basic", "Advanced"))
+language = st.sidebar.selectbox("Select Language:", ["English", "Spanish", "French", "German"])
+
+def preprocess_text(text, lang):
+    """Translate text to English if needed."""
+    if lang != "English":
+        try:
+            text_translated = str(TextBlob(text).translate(to='en'))
+            return text_translated
+        except Exception as e:
+            st.warning(f"Translation failed: {e}. Using original text.")
+            return text
+    else:
+        return text
