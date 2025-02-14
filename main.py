@@ -41,3 +41,15 @@ def analyze_sentiment_basic(text):
 def load_advanced_pipeline():
     """Load the Hugging Face sentiment-analysis pipeline."""
     return pipeline("sentiment-analysis")
+    
+def analyze_sentiment_advanced(text, advanced_analyzer):
+    """Analyze sentiment using a transformer model."""
+    result = advanced_analyzer(text)
+    label = result[0]['label']
+    score = result[0]['score']
+    return label, score
+
+def analyze_emotion(text):
+    """Extract emotions using NRCLex."""
+    emotion = NRCLex(text)
+    return emotion.top_emotions
