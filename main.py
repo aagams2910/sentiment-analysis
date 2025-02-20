@@ -232,7 +232,6 @@ if analyze_button:
                     st.write("### File Sentiment Results")
                     st.write(df)
 
-                    # Sentiment Distribution Visualization (for Basic mode)
                     if analysis_mode == "Basic":
                         st.write("#### Sentiment Distribution")
                         fig, ax = plt.subplots(1, 3, figsize=(18, 5))
@@ -245,7 +244,6 @@ if analyze_button:
                         ax[2].set_title("Sentiment Categories")
                         st.pyplot(fig)
 
-                    # Enhanced Word Cloud for File
                     st.write("#### Enhanced Word Cloud (Segregated by Sentiment)")
                     all_text = " ".join(df['Text'].tolist())
                     processed_all_text = preprocess_text(all_text, language)
@@ -263,20 +261,16 @@ if analyze_button:
                 with open(temp_audio_path, "wb") as f:
                     f.write(uploaded_audio.read())
 
-                # Visualize audio features before transcription
                 st.write("#### Audio Features")
                 plot_audio_features(temp_audio_path)
 
-                # Transcribe audio to text
                 text_from_audio = audio_to_text(temp_audio_path)
-                # Remove the temporary audio file
                 os.remove(temp_audio_path)
                 
                 processed_text = preprocess_text(text_from_audio, language)
                 st.write("#### Extracted Text from Audio")
                 st.write(processed_text)
                 
-                # Sentiment Analysis
                 if analysis_mode == "Basic":
                     polarity, subjectivity = analyze_sentiment_basic(processed_text)
                     st.write("#### Sentiment Results from Audio (Basic Analysis)")
@@ -291,13 +285,11 @@ if analyze_button:
                     st.write(f"**Label:** {label}")
                     st.write(f"**Confidence Score:** {score:.2f}")
 
-                # Emotion Detection
                 emotions = analyze_emotion(processed_text)
                 st.write("#### Detected Emotions")
                 for emo, emo_score in emotions:
                     st.write(f"{emo.capitalize()}: {emo_score}")
 
-                # Enhanced Word Cloud from Audio
                 st.write("#### Enhanced Word Cloud (Segregated by Sentiment)")
                 fig = generate_segregated_wordcloud(processed_text)
                 st.pyplot(fig)
