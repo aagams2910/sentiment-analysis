@@ -10,21 +10,17 @@ from transformers import pipeline
 import librosa
 import librosa.display
 from nrclex import NRCLex
-import re  # New: for word tokenization
+import re  
 
-# App Title
 st.title("Sentiment Analysis")
 
-# Sidebar Options
 st.sidebar.header("Input Options")
 input_type = st.sidebar.radio("Select Input Type:", ("Text", "File Upload", "Audio Upload"))
 analysis_mode = st.sidebar.radio("Select Analysis Mode:", ("Basic", "Advanced"))
 language = st.sidebar.selectbox("Select Language:", ["English"])
 
-# ----- Helper Functions -----
 
 def preprocess_text(text, lang):
-    """Translate text to English if needed."""
     if lang != "English":
         try:
             text_translated = str(TextBlob(text).translate(to='en'))
@@ -36,30 +32,25 @@ def preprocess_text(text, lang):
         return text
 
 def analyze_sentiment_basic(text):
-    """Analyze sentiment using TextBlob."""
     blob = TextBlob(text)
     sentiment = blob.sentiment
     return sentiment.polarity, sentiment.subjectivity
 
 @st.cache_resource(show_spinner=False)
 def load_advanced_pipeline():
-    """Load the Hugging Face sentiment-analysis pipeline."""
     return pipeline("sentiment-analysis")
 
 def analyze_sentiment_advanced(text, advanced_analyzer):
-    """Analyze sentiment using a transformer model."""
     result = advanced_analyzer(text)
     label = result[0]['label']
     score = result[0]['score']
     return label, score
 
 def analyze_emotion(text):
-    """Extract emotions using NRCLex."""
     emotion = NRCLex(text)
     return emotion.top_emotions  # Returns a list of (emotion, score)
 
 def audio_to_text(audio_file):
-    """Convert audio file to text using speech recognition."""
     recognizer = sr.Recognizer()
     with sr.AudioFile(audio_file) as source:
         audio_data = recognizer.record(source)
@@ -67,7 +58,6 @@ def audio_to_text(audio_file):
     return text
 
 def plot_audio_features(audio_path):
-    """Plot waveform and Mel spectrogram of an audio file."""
     y, sr_rate = librosa.load(audio_path, sr=None)
     fig, ax = plt.subplots(2, 1, figsize=(10, 8))
     # Plot waveform
@@ -161,8 +151,6 @@ def generate_segregated_wordcloud(text):
     plt.tight_layout()
     return fig
 
-# ----- Input Handling -----
-
 if input_type == "Text":
     user_text = st.text_area("Enter Text Below:", "")
     analyze_button = st.button("Analyze Sentiment")
@@ -173,7 +161,6 @@ elif input_type == "Audio Upload":
     uploaded_audio = st.file_uploader("Upload an Audio File (WAV):", type=["wav"])
     analyze_button = st.button("Analyze Audio")
 
-# ----- Analysis and Visualization -----
 
 if analyze_button:
     if input_type == "Text":
@@ -182,7 +169,6 @@ if analyze_button:
             st.write("### Processed Text for Analysis")
             st.write(processed_text)
             
-            # Sentiment Analysis
             if analysis_mode == "Basic":
                 polarity, subjectivity = analyze_sentiment_basic(processed_text)
                 st.write("#### Sentiment Results (Basic Analysis)")
@@ -197,13 +183,11 @@ if analyze_button:
                 st.write(f"**Label:** {label}")
                 st.write(f"**Confidence Score:** {score:.2f}")
 
-            # Emotion Detection
             emotions = analyze_emotion(processed_text)
             st.write("#### Detected Emotions")
             for emo, emo_score in emotions:
                 st.write(f"{emo.capitalize()}: {emo_score}")
 
-            # Enhanced Word Cloud: Segregated by Sentiment
             st.write("#### Enhanced Word Cloud (Segregated by Sentiment)")
             fig = generate_segregated_wordcloud(processed_text)
             st.pyplot(fig)
