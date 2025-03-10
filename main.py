@@ -17,7 +17,7 @@ st.title("Sentiment Analysis")
 st.sidebar.header("Input Options")
 input_type = st.sidebar.radio("Select Input Type:", ("Text", "File Upload", "Audio Upload"))
 analysis_mode = st.sidebar.radio("Select Analysis Mode:", ("Basic", "Advanced"))
-language = st.sidebar.selectbox("Select Language:", ["English"])
+language = "English"
 
 
 def preprocess_text(text, lang):
