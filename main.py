@@ -12,13 +12,41 @@ import librosa.display
 from nrclex import NRCLex
 import re
 import nltk
+import asyncio
+import subprocess
+import sys
 
-# Ensure that the required NLTK corpora are available
-for resource, path in [('punkt', 'tokenizers/punkt'), ('averaged_perceptron_tagger', 'taggers/averaged_perceptron_tagger')]:
+# Create a local nltk_data directory and add it to the NLTK search path
+nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+if not os.path.exists(nltk_data_dir):
+    os.mkdir(nltk_data_dir)
+if nltk_data_dir not in nltk.data.path:
+    nltk.data.path.append(nltk_data_dir)
+
+# Ensure that the required NLTK corpora are available in the nltk_data folder
+for resource in ['punkt', 'averaged_perceptron_tagger', 'brown', 'wordnet', 'stopwords']:
     try:
-        nltk.data.find(path)
+        find_path = (
+            f"corpora/{resource}"
+            if resource not in ['punkt', 'averaged_perceptron_tagger']
+            else f"tokenizers/{resource}" if resource == 'punkt'
+            else f"taggers/{resource}"
+        )
+        nltk.data.find(find_path)
     except LookupError:
-        nltk.download(resource)
+        nltk.download(resource, download_dir=nltk_data_dir, force=True)
+
+# Download TextBlob required corpora
+try:
+    import textblob
+    # Check if TextBlob corpora is already downloaded
+    try:
+        from textblob.tokenizers import sent_tokenize
+        sent_tokenize("Test sentence.")
+    except textblob.exceptions.MissingCorpusError:
+        subprocess.check_call([sys.executable, '-m', 'textblob.download_corpora'])
+except Exception as e:
+    st.error(f"Error initializing TextBlob: {e}")
 
 st.title("Sentiment Analysis")
 
@@ -26,7 +54,6 @@ st.sidebar.header("Input Options")
 input_type = st.sidebar.radio("Select Input Type:", ("Text", "File Upload", "Audio Upload"))
 analysis_mode = st.sidebar.radio("Select Analysis Mode:", ("Basic", "Advanced"))
 language = "English"
-
 
 def preprocess_text(text, lang):
     if lang != "English":
@@ -46,7 +73,17 @@ def analyze_sentiment_basic(text):
 
 @st.cache_resource(show_spinner=False)
 def load_advanced_pipeline():
-    return pipeline("sentiment-analysis")
+    try:
+        # More robust way to handle the event loop
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        return pipeline("sentiment-analysis")
+    except Exception as e:
+        st.error(f"Failed to load sentiment analysis model: {e}")
+        return None
 
 def analyze_sentiment_advanced(text, advanced_analyzer):
     result = advanced_analyzer(text)
@@ -55,8 +92,12 @@ def analyze_sentiment_advanced(text, advanced_analyzer):
     return label, score
 
 def analyze_emotion(text):
-    emotion = NRCLex(text)
-    return emotion.top_emotions  # Returns a list of (emotion, score)
+    try:
+        emotion = NRCLex(text)
+        return emotion.top_emotions  # Returns a list of (emotion, score)
+    except Exception as e:
+        st.error(f"Error analyzing emotions: {e}")
+        return [("unknown", 0.0)]  # Return a default value
 
 def audio_to_text(audio_file):
     recognizer = sr.Recognizer()
