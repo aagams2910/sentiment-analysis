@@ -11,8 +11,9 @@ import librosa
 import librosa.display
 from nrclex import NRCLex
 import re
-import nltk 
+import nltk
 
+# Ensure that the required NLTK corpora are available
 for resource, path in [('punkt', 'tokenizers/punkt'), ('averaged_perceptron_tagger', 'taggers/averaged_perceptron_tagger')]:
     try:
         nltk.data.find(path)
@@ -87,7 +88,7 @@ def classify_sentiment(polarity):
     else:
         return "Neutral"
 
-# --- NEW: Enhanced Word Cloud Function ---
+# --- Enhanced Word Cloud Function ---
 def generate_segregated_wordcloud(text):
     """
     Generate segregated word clouds for Positive, Negative, and Neutral words.
@@ -167,7 +168,6 @@ elif input_type == "File Upload":
 elif input_type == "Audio Upload":
     uploaded_audio = st.file_uploader("Upload an Audio File (WAV):", type=["wav"])
     analyze_button = st.button("Analyze Audio")
-
 
 if analyze_button:
     if input_type == "Text":
