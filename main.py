@@ -10,7 +10,14 @@ from transformers import pipeline
 import librosa
 import librosa.display
 from nrclex import NRCLex
-import re  
+import re
+import nltk 
+
+for resource, path in [('punkt', 'tokenizers/punkt'), ('averaged_perceptron_tagger', 'taggers/averaged_perceptron_tagger')]:
+    try:
+        nltk.data.find(path)
+    except LookupError:
+        nltk.download(resource)
 
 st.title("Sentiment Analysis")
 
