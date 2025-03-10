@@ -1,0 +1,11 @@
+streamlit
+textblob
+wordcloud
+matplotlib
+pandas
+SpeechRecognition
+numpy
+transformers
+torch
+librosa
+nrclex
